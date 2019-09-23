@@ -29,6 +29,18 @@ archaea_df$superkingdom <- "Archaea"
 
 Integrated_all_df <- rbind(bacteria_df, archaea_df)
 
+tibble(Integrated_all_df$superkingdom, Integrated_all_df$Organism) %>%
+  rename("superkingdom" = `Integrated_all_df$superkingdom` ,
+         "RefSeq_number" = `Integrated_all_df$Organism` ) %>% 
+  unique() %>% 
+  head()
+  
+# write_csv(x = tibble(Integrated_all_df$superkingdom, Integrated_all_df$Organism) %>%
+#             rename("superkingdom" = `Integrated_all_df$superkingdom` ,
+#                    "RefSeq_number" = `Integrated_all_df$Organism` ) %>% 
+#             unique(), col_names = TRUE, path = "Table_S2_Representative_dataset_Integrated_all_df.csv")
+
+
 normalit <- function(x){
   (x - min(x)) / (max(x) - min(x))
 }
