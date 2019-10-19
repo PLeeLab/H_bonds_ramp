@@ -69,8 +69,8 @@ get_model_parameters <- function(ELEMENT, START_AFTER_CODON_POSITION, END_AT_COD
              aes(Position, Mean)) +
         geom_pointrange(mapping = aes(y=Mean, ymin=Lower, ymax=Upper), size=0.05) +
         #geom_point(shape=21, colour="black", fill="grey", size=0.25) +
-        #geom_line(aes(Position, uniform_fit), colour="green", lwd=2, alpha=0.75) +
-        #geom_line(aes(Position, linear_fit), colour="purple", lwd=2, alpha=0.75) +
+        geom_line(aes(Position, uniform_fit), colour="green",   lwd=0.5, alpha=1) +
+        geom_line(aes(Position, linear_fit), colour="purple",   lwd=0.5, alpha=1) +
         geom_line(aes(Position, exponential_fit), colour="red", lwd=0.5, alpha=1) +
         xlab(label = "Codon position (5'-end)") +
         ylab(label = "Hydrogen bonds per codon") +

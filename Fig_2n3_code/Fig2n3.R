@@ -34,6 +34,7 @@ theme_new <- function() {
 #-------- INPUTS -------#
 # source(file = "get_model_parameters.R")
 Elements_df_boot <- read.delim(file = "inputs/OUT_Elements_df_boot.txt")
+#Elements_df_boot <- read_csv(file = "~/Downloads/data.csv")
 
 tax_df <- rbind(
   read.delim(file = "inputs/taxonomy/integrated_tax_df_Bacteria_genomes.txt"),
@@ -53,6 +54,7 @@ models_df_Bacteria <- rbind(
 models_df_Archaea <- read.delim(file = "inputs/model_fitness/OUT_Archaea_Model_fitness_5end_ALL_1_to_297.txt")
 models_df_Fungi <- read.delim(file = "inputs/model_fitness/OUT_Fungi_Model_fitness_5end_ALL_1_to_293.txt")
 
+
 ORFeome_features <- rbind(
   read.delim(file = "inputs/ORFeome_features/ORFeome_features_Archaea.txt"),
   read.delim(file = "inputs/ORFeome_features/ORFeome_features_Bacteria.txt"),
@@ -61,6 +63,7 @@ ORFeome_features <- rbind(
 #-------------------------#
 source(file = "get_model_parameters.R")
 model_fitness_5end <- get_model_parameters(ELEMENT = "Hydrogen bonds", START_AFTER_CODON_POSITION = 1, END_AT_CODON_POSITION = 100, RETURN = "data")
+model_fitness_5end
 Fig_2A <- get_model_parameters(ELEMENT = "Hydrogen bonds", START_AFTER_CODON_POSITION = 1, END_AT_CODON_POSITION = 100, RETURN = "plot")
 
 dir.create(path = "outputs", showWarnings = TRUE)
@@ -185,7 +188,7 @@ ggsave(
   useDingbats = FALSE
 )
 
-Fig_S3A <- integrated_df %>%
+Fig_S4A <- integrated_df %>%
   ggplot(mapping = aes(
     x = superkingdom,
     y = Length_total,
@@ -206,7 +209,7 @@ Fig_S3A <- integrated_df %>%
   theme(legend.position = "bottom") +
   NULL
 
-Fig_S3B <- integrated_df %>%
+Fig_S4B <- integrated_df %>%
   ggplot(mapping = aes(
     x = superkingdom,
     y = Length_mean,
@@ -226,7 +229,7 @@ Fig_S3B <- integrated_df %>%
   theme(legend.position = "bottom", legend.title = element_blank()) +
   NULL
 
-Fig_S3C <- integrated_df %>%
+Fig_S4C <- integrated_df %>%
   ggplot(mapping = aes(
     x = superkingdom,
     y = GC3_mean / GC_mean,
@@ -246,7 +249,7 @@ Fig_S3C <- integrated_df %>%
   theme(legend.position = "bottom", legend.title = element_blank()) +
   NULL
 
-Fig_S3D <- integrated_df %>%
+Fig_S4D <- integrated_df %>%
   filter(phylum != "NA") %>%
   ggplot(mapping = aes(
     x = reorder(phylum, GC_mean, FUN = mean),
@@ -270,7 +273,7 @@ Fig_S3D <- integrated_df %>%
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   NULL
 
-Fig_S3E <- integrated_df %>%
+Fig_S4E <- integrated_df %>%
   filter(phylum != "NA") %>%
   ggplot(mapping = aes(
     x = reorder(phylum, GC_mean, FUN = mean),
@@ -294,12 +297,12 @@ Fig_S3E <- integrated_df %>%
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   NULL
 
-Fig_S3ABC <- plot_grid(Fig_S3A, Fig_S3B, Fig_S3C, labels = c("A", "B", "C"), label_size = 22, ncol = 3, nrow = 1)
-Fig_S3 <- plot_grid(Fig_S3ABC, Fig_S3D, Fig_S3E, labels = c("", "D", "E"), label_size = 22, ncol = 1, nrow = 3, rel_heights = c(1, 1.75, 1.75))
+Fig_S4ABC <- plot_grid(Fig_S4A, Fig_S4B, Fig_S4C, labels = c("A", "B", "C"), label_size = 22, ncol = 3, nrow = 1)
+Fig_S4 <- plot_grid(Fig_S4ABC, Fig_S4D, Fig_S4E, labels = c("", "D", "E"), label_size = 22, ncol = 1, nrow = 3, rel_heights = c(1, 1.75, 1.75))
 
 ggsave(
-  plot = Fig_S3,
-  filename = "outputs/Fig_S3.pdf",
+  plot = Fig_S4,
+  filename = "outputs/Fig_S4.pdf",
   device = "pdf",
   width = 10,
   height = 14,
@@ -567,3 +570,147 @@ ggsave(
 )
 
 p.adjust(p = c(0.04, 0.0082, 0.00025), method = "BY")
+
+
+# Fig_S5A <- integrated_df %>%
+#   filter(superkingdom == "Eukaryota") %>% 
+#   select(Modeling, phylum) %>%
+#   table() %>%
+#   as.data.frame() %>%
+#   group_by(phylum) %>%
+#   filter(Freq > 0) %>% 
+#   mutate(Percentage = 100 * (Freq / sum(Freq))) %>%
+#   #mutate(Labels = paste(Freq, "(", round(Percentage, digits = 1), "%)")) %>%
+#   mutate(Labels = Freq) %>%
+#   #ggplot(aes(x = phylum, y = Percentage, fill = Modeling)) +
+#   ggplot(aes(x = phylum, y = Freq, fill = Modeling)) +
+#   geom_bar(stat = "identity", width = 0.8) +
+#   #geom_text(aes(x = phylum, y = Percentage, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   geom_text(aes(x = phylum, y = Freq, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   xlab(label = "Phylum") +
+#   coord_flip() +
+#   # labs(subtitle = "All data") +
+#   #scale_fill_brewer(palette = "Dark2") +
+#   theme_new() +
+#   theme(legend.position = "bottom",
+#         axis.text.y = element_text(face = "italic")) +
+#   NULL
+# 
+# Fig_S5B <- integrated_df %>%
+#   filter(superkingdom == "Eukaryota", phylum == "Ascomycota") %>% 
+#   select(Modeling, class) %>%
+#   table() %>%
+#   as.data.frame() %>%
+#   group_by(class) %>%
+#   filter(Freq > 0) %>% 
+#   mutate(Percentage = 100 * (Freq / sum(Freq))) %>%
+#   #mutate(Labels = paste(Freq, "(", round(Percentage, digits = 1), "%)")) %>%
+#   mutate(Labels = Freq) %>%
+#   #ggplot(aes(x = class, y = Percentage, fill = Modeling)) +
+#   ggplot(aes(x = class, y = Freq, fill = Modeling)) +
+#   geom_bar(stat = "identity", width = 0.8) +
+#   #geom_text(aes(x = class, y = Percentage, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   geom_text(aes(x = class, y = Freq, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   xlab(label = "Class") +
+#   coord_flip() +
+#   # labs(subtitle = "All data") +
+#   #scale_fill_brewer(palette = "Dark2") +
+#   theme_new() +
+#   theme(legend.position = "bottom",
+#         axis.text.y = element_text(face = "italic")) +
+#   NULL
+# 
+# Fig_S5C <- integrated_df %>%
+#   filter(superkingdom == "Eukaryota", phylum == "Ascomycota", class == "Saccharomycetes") %>% 
+#   select(Modeling, order) %>%
+#   table() %>%
+#   as.data.frame() %>%
+#   group_by(order) %>%
+#   filter(Freq > 0) %>% 
+#   mutate(Percentage = 100 * (Freq / sum(Freq))) %>%
+#   #mutate(Labels = paste(Freq, "(", round(Percentage, digits = 1), "%)")) %>%
+#   mutate(Labels = Freq) %>%
+#   #ggplot(aes(x = order, y = Percentage, fill = Modeling)) +
+#   ggplot(aes(x = order, y = Freq, fill = Modeling)) +
+#   geom_bar(stat = "identity", width = 0.8) +
+#   #geom_text(aes(x = order, y = Percentage, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   geom_text(aes(x = order, y = Freq, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   xlab(label = "Order") +
+#   coord_flip() +
+#   # labs(subtitle = "All data") +
+#   #scale_fill_brewer(palette = "Dark2") +
+#   theme_new() +
+#   theme(legend.position = "bottom",
+#         axis.text.y = element_text(face = "italic")) +
+#   NULL
+
+# Fig_S5D <- integrated_df %>%
+#   filter(superkingdom == "Eukaryota", phylum == "Ascomycota", class == "Saccharomycetes", order == "Saccharomycetales") %>% 
+#   select(Modeling, family) %>%
+#   table() %>%
+#   as.data.frame() %>%
+#   group_by(family) %>%
+#   filter(Freq > 0) %>% 
+#   mutate(Percentage = 100 * (Freq / sum(Freq))) %>%
+#   #mutate(Labels = paste(Freq, "(", round(Percentage, digits = 1), "%)")) %>%
+#   mutate(Labels = Freq) %>%
+#   #ggplot(aes(x = family, y = Percentage, fill = Modeling)) +
+#   ggplot(aes(x = family, y = Freq, fill = Modeling)) +
+#   geom_bar(stat = "identity", width = 0.8) +
+#   #geom_text(aes(x = family, y = Percentage, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   geom_text(aes(x = family, y = Freq, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+#   xlab(label = "Family") +
+#   coord_flip() +
+#   # labs(subtitle = "All data") +
+#   #scale_fill_brewer(palette = "Dark2") +
+#   theme_new() +
+#   theme(legend.position = "bottom",
+#         axis.text.y = element_text(face = "italic")) +
+#   NULL
+
+#Fig_S5 <- plot_grid(Fig_S5A, Fig_S5B, Fig_S5C, Fig_S5D, labels = c("A", "B", "C", "D"), label_size = 8, ncol = 2, nrow = 2, rel_heights = c(1, 1, 1, 1))
+
+# ggsave(
+#   plot = Fig_S5,
+#   filename = "outputs/Fig_S5.pdf",
+#   device = "pdf",
+#   width = 183,
+#   height = 183,
+#   units = "mm",
+#   useDingbats = FALSE
+# )
+
+Fig_S5 <- integrated_df %>%
+  filter(superkingdom == "Eukaryota") %>% 
+  select(Modeling, family) %>%
+  table() %>%
+  as.data.frame() %>%
+  group_by(family) %>%
+  filter(Freq > 0) %>% 
+  mutate(Percentage = 100 * (Freq / sum(Freq))) %>%
+  #mutate(Labels = paste(Freq, "(", round(Percentage, digits = 1), "%)")) %>%
+  mutate(Labels = Freq) %>%
+  #ggplot(aes(x = family, y = Percentage, fill = Modeling)) +
+  ggplot(aes(x = family, y = Freq, fill = Modeling)) +
+  geom_bar(stat = "identity", width = 0.8) +
+  #geom_text(aes(x = family, y = Percentage, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+  #geom_text(aes(x = family, y = Freq, label = Labels), colour = "white", position = position_stack(vjust = 0.5), size = 1) +
+  xlab(label = "Family") +
+  coord_flip() +
+  # labs(subtitle = "All data") +
+  #scale_fill_brewer(palette = "Dark2") +
+  theme_new() +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(face = "italic")) +
+  NULL
+
+ggsave(
+  plot = Fig_S5,
+  filename = "outputs/Fig_S5.pdf",
+  device = "pdf",
+  width = 89,
+  height = 189,
+  units = "mm",
+  useDingbats = FALSE
+)
+
