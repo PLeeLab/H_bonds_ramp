@@ -1,4 +1,4 @@
-# Position-dependent codon usage bias creates a ramp of hydrogen bonds in prokaryotic ORFeomes
+# Codon usage bias creates a ramp of hydrogen bonding at the 5ʹ-end in prokaryotic ORFeomes
 
 _Juan C. Villada_<br />
 _Maria F. Duran_<br />
