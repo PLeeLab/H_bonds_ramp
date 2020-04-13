@@ -1,0 +1,2 @@
+Modeling	Genome	Element	Carrying_capacity	Rate	Initial_cost	AIC_Uniform	AIC_Linear	AIC_Exponential	BIC_Uniform	BIC_Linear	BIC_Exponential	P_Carrying_capacity	P_Rate	P_Initial_cost	Best_AIC	Best_BIC
+Successful	GCF_901733115.1_Escherichia_coli_MAD	Hydrogen bonds	7.55523260623939	0.213464588829304	6.83598273395431	-206.726131944071	-228.753471653478	-448.698815014817	-201.535892243802	-220.968112103074	-438.318335614279	5.37410493096588e-237	7.24475648445057e-29	7.58312381381491e-122	AIC_Exponential	BIC_Exponential
