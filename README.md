@@ -7,8 +7,11 @@ _Patrick K. H. Lee_<br />
 ## Methods and data to reproduce the study
 
 1. [Figure 1](Fig_1_code/)
-2. [Figure 2 and Figure 3](Fig_2n3_code/)
-3. [Figure 4](Fig_4_code/)
+2. [Figure 2](Fig_2_code/)
+3. [Figure 3](Fig_3_code/)
+4. [Figure 4](Fig_4_code/)
+5. [Figure 5](Fig_5_code/)
+6. [Figure 6](Fig_6_code/)
 
 ## Contact
 [Lee Research Group](http://www6.cityu.edu.hk/see/personal/Patrick_Lee/research.html)<br />
