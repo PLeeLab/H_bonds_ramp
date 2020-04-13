@@ -277,6 +277,8 @@ Fig_3_BOTTOM <- plot_grid(Fig_3D1, Fig_3D2, Fig_3D3, Fig_3D4, labels = c("C", ""
 
 Fig_3 <- plot_grid(Fig_3_TOP, Fig_3_BOTTOM, labels = c("", ""), ncol = 1, nrow = 2, rel_heights = c(0.8, 1.2))
 
+dir.create(path = "outputs", showWarnings = TRUE)
+
 ggsave(plot = Fig_3,
        filename = "outputs/Fig_3.pdf",
        device = "pdf",

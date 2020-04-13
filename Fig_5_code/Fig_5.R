@@ -268,6 +268,8 @@ Fig_5FG <- plot_grid(gheatmap(p        = p_tree2,
             NULL,
           labels = c("F", "G"), label_size = 8, ncol = 2, rel_widths = c(1.25, 0.75))
 
+dir.create(path = "outputs", showWarnings = TRUE)
+
 ggsave(plot = plot_grid(Fig_5ABCDE, Fig_5FG, nrow = 2, ncol = 1, rel_heights = c(1/5, 4/5)),
        filename = "outputs/Fig_5.pdf",
        device = "pdf",

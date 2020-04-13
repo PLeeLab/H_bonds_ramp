@@ -101,6 +101,8 @@ Fig_2A <- ggplot(data = integrated_metrics_df %>%
   theme(legend.position = "none") +
   NULL
 
+dir.create(path = "outputs", showWarnings = TRUE)
+
 ggsave(plot = Fig_2A,
        filename = "outputs/Fig_2A.pdf",
        device = "pdf",
