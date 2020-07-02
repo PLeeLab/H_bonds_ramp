@@ -1,0 +1,129 @@
+
+
+IMPORTANT WARNING: Sequences GCF_000016605.1_ASM1660v1_protein and GCF_001266655.1_ASM126665v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000016605.1_ASM1660v1_protein and GCF_001266715.1_ASM126671v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000016605.1_ASM1660v1_protein and GCF_001266735.1_ASM126673v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000016605.1_ASM1660v1_protein and GCF_001266675.1_ASM126667v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000016605.1_ASM1660v1_protein and GCF_001266695.1_ASM126669v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000968355.1_ASM96835v1_protein and GCF_000024745.1_ASM2474v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000968355.1_ASM96835v1_protein and GCF_000968435.1_ASM96843v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000968355.1_ASM96835v1_protein and GCF_003852135.1_ASM385213v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000968355.1_ASM96835v1_protein and GCF_003852215.1_ASM385221v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000968355.1_ASM96835v1_protein and GCF_003852195.1_ASM385219v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_002215405.1_ASM221540v1_protein and GCF_002215525.1_ASM221552v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_002215405.1_ASM221540v1_protein and GCF_002215445.1_ASM221544v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000504565.1_ASM50456v2_protein and GCF_000223905.1_ASM22390v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_000069025.1_ASM6902v1_protein and GCF_000006805.1_ASM680v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_003852095.1_ASM385209v1_protein and GCF_003852175.1_ASM385217v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_003852095.1_ASM385209v1_protein and GCF_003852155.1_ASM385215v1_protein are exactly identical
+
+
+IMPORTANT WARNING: Sequences GCF_001951135.1_ASM195113v1_protein and GCF_001951135.2_ASM195113v2_protein are exactly identical
+
+IMPORTANT WARNING
+Found 17 sequences that are exactly identical to other sequences in the alignment.
+Normally they should be excluded from the analysis.
+
+Just in case you might need it, an alignment file with 
+sequence duplicates removed is printed to file /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB/refDataSet_bacteria_archaea_fungi_concatenated.aln.reduced
+
+
+This is RAxML version 8.2.12 released by Alexandros Stamatakis on May 2018.
+
+With greatly appreciated code contributions by:
+Andre Aberer      (HITS)
+Simon Berger      (HITS)
+Alexey Kozlov     (HITS)
+Kassian Kobert    (HITS)
+David Dao         (KIT and HITS)
+Sarah Lutteropp   (KIT and HITS)
+Nick Pattengale   (Sandia)
+Wayne Pfeiffer    (SDSC)
+Akifumi S. Tanabe (NRIFS)
+Charlie Taylor    (UF)
+
+
+Alignment has 4561 distinct alignment patterns
+
+Proportion of gaps and completely undetermined characters in this alignment: 26.03%
+
+RAxML rapid hill-climbing mode
+
+Using 1 distinct models/data partitions with joint branch length optimization
+
+
+Executing 1 inferences on the original alignment using 1 user-specified trees
+
+All free model parameters will be estimated by RAxML
+ML estimate of 25 per site rate categories
+
+Likelihood of final tree will be evaluated and optimized under GAMMA
+
+GAMMA Model parameters will be estimated up to an accuracy of 0.1000000000 Log Likelihood units
+
+Partition: 0
+Alignment Patterns: 4561
+Name: No Name Provided
+DataType: AA
+Substitution Matrix: LG
+Using fixed base frequencies
+
+
+
+
+RAxML was called as follows:
+
+raxmlHPC-PTHREADS-SSE3 -p 1989 -m PROTCATLG -T 12 -t /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB/refDataSet_bacteria_archaea_fungi_resolved.tre -w /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB -s /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB/refDataSet_bacteria_archaea_fungi_concatenated.aln -n refDataSet_bacteria_archaea_fungi_refined.tre 
+
+
+Partition: 0 with name: No Name Provided
+Base frequencies: 0.079 0.056 0.042 0.053 0.013 0.041 0.072 0.057 0.022 0.062 0.099 0.065 0.023 0.042 0.044 0.061 0.053 0.012 0.034 0.069 
+
+Inference[0]: Time 9058.427852 CAT-based likelihood -1983688.533196, best rearrangement setting 10
+alpha[0]: 1.000000 
+
+
+Conducting final model optimizations on all 1 trees under GAMMA-based models ....
+
+Inference[0] final GAMMA-based Likelihood: -1991247.476123 tree written to file /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB/RAxML_result.refDataSet_bacteria_archaea_fungi_refined.tre
+
+
+Starting final GAMMA-based thorough Optimization on tree 0 likelihood -1991247.476123 .... 
+
+Final GAMMA-based Score of best tree -1991223.609173
+
+Program execution info written to /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB/RAxML_info.refDataSet_bacteria_archaea_fungi_refined.tre
+Best-scoring ML tree written to: /home/j/data_hd/programs/phylophlan/output/ref_dataset_bact_arch_fung_pdHB/RAxML_bestTree.refDataSet_bacteria_archaea_fungi_refined.tre
+
+Overall execution time: 17944.465371 secs or 4.984574 hours or 0.207691 days
+

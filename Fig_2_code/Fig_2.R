@@ -1,291 +1,273 @@
-#install.packages('tidyverse')
-#install.packages("Hmisc")
-#install.packages("RcmdrMisc")
 library("tidyverse")
-library("corrr")
+library("Biostrings")
+library("seqinr")
+library("ggpubr")
 library("cowplot")
-library("Hmisc")
-library("RcmdrMisc")
-#-------------------------#
 
 rm(list=ls()); # clear environment
 
 theme_new <- function(){
   theme_bw() %+replace%
     theme(
-      plot.title = element_text(   color = "black", size = 7, face = "plain", hjust = 0),
-      axis.title = element_text(   color = "black", size = 7),
+      plot.title = element_text(   color = "black", size = 6, hjust = 0),
+      axis.title = element_text(   color = "black", size = 6),
       axis.text = element_text(    color = "black", size = 6),
-      legend.text = element_text(  color = "black", size = 5),
-      legend.title = element_text( color = "black", size = 5),
-      strip.text = element_text(   color = "black", size = 6), 
+      legend.text = element_text(  color = "black", size = 6),
+      legend.title = element_text( color = "black", size = 6),
+      strip.text = element_text(   color = "black", size = 6),
       strip.background = element_blank(),
-      panel.grid.minor = element_blank(),
-      panel.grid.major = element_blank(),
+      #panel.grid.minor = element_blank(),
+      #panel.grid.major = element_blank(),
       complete = TRUE
     )
 }
-#-------------------------#
 
-pd_RSCU <- read_csv(file = "inputs/complete_rscu_dataset.csv")
-pd_RSCU$Metric <- "(A) RSCU"
+ORFs_file <- readDNAStringSet(filepath = "inputs/predicted_orfs_7929")
+operon_data <- read_delim(file = "inputs/list_of_operons_7929", delim = "\t")
+ORGANISM_NAME = "Escherichia_coli_str_k_12_substr_mg1655"
 
-pd_W <- read_csv(file = "inputs/complete_w_dataset.csv")
-pd_W$Metric <- "(C) CAI"
+new_operon_id <- c()
+for (i in operon_data$Operon) {
+  if (!is.na(i)) { operon_id <- i }
+  #print(i)
+  #print(operon_id)
+  new_operon_id <- c(new_operon_id, operon_id)
+}
 
-pd_folding_energy_dataset <- read_csv(file = "inputs/complete_fold_prob_dataset.csv")
-pd_folding_energy_dataset$Mean  <- 1 - pd_folding_energy_dataset$Mean
-pd_folding_energy_dataset$Upper <- 1 - pd_folding_energy_dataset$Upper
-pd_folding_energy_dataset$Lower <- 1 - pd_folding_energy_dataset$Lower
-pd_folding_energy_dataset$Metric <- "(B) P(mRNA folding)"
+NUMBER_OF_CODONS_TO_ANALYZE = 100 # 100
+MINIMUM_NUMBER_OF_ORFs_PER_OPERON = 2
 
-pd_tAI_bact_ecoli  <- read_csv(file = "inputs/wtai_tibble_Escherichia_coli.csv")
-pd_tAI_bact_verru  <- read_csv(file = "inputs/wtai_tibble_Methylacidiphilum_kamchatkense_Kam1.csv")
-pd_tAI_arch_metha  <- read_csv(file = "inputs/wtai_tibble_Methanosarcina_acetivorans_c2a.ASM734v1.csv")
-pd_tAI_arch_halof  <- read_csv(file = "inputs/wtai_tibble_Haloferax_volcanii.csv")
-pd_tAI_fung_sacch  <- read_csv(file = "inputs/wtai_tibble_Saccharomyces_cerevisiae.csv")
-pd_tAI_fung_schiz  <- read_csv(file = "inputs/wtai_tibble_Schizosaccharomyces_pombe.csv")
-pd_tAI_fung_neuro  <- read_csv(file = "inputs/wtai_tibble_Neurospora_crassa_73.csv")
-pd_tAI_fung_asper  <- read_csv(file = "inputs/wtai_tibble_Aspergillus_nidulans.csv")
-pd_tAI_dataset <- bind_rows(pd_tAI_bact_ecoli, pd_tAI_bact_verru, pd_tAI_arch_metha, pd_tAI_arch_halof, pd_tAI_fung_sacch, pd_tAI_fung_schiz, pd_tAI_fung_neuro, pd_tAI_fung_asper)
-pd_tAI_dataset$Metric <- "(D) tAI"
+operons_tibble <- operon_data %>% 
+  mutate(Operon_ID = new_operon_id) %>% # bind the column with the operon numbers
+  drop_na(IdGene) %>%                           # remove the rows that were empty because of the numbering of the operons
+  select(-Operon) %>%                           # remove the old numbering of the operons
+  select(Operon_ID, IdGene:Function) %>%    # reorder the tibble so the new numbering appears upfront
+  filter( Type == "CDS" ) %>%               # make sure to subset only CDSs
+  group_by(Operon_ID) %>%                   # count the number of ORFs in each operon
+  filter( n() >= MINIMUM_NUMBER_OF_ORFs_PER_OPERON) %>% # keep only operons with more thant X ORFs
+  mutate(IdGene = gsub(x = IdGene,
+                       pattern = "CDS:",
+                       replacement = "")) %>%  # simplify the name of ORFs
+  mutate(ORF_length = postRight - PosLeft) %>% # calculate the lengt of every ORF
+  group_by(Operon_ID) %>%                  # group by operon id
+  filter(all(ORF_length >= NUMBER_OF_CODONS_TO_ANALYZE*3)) # keep only operons that contain all ORF with lengths equal or greater than the NUMBER_OF_CODONS_TO_ANALYZE
+#min(operons_tibble$ORF_length)
 
-unique(pd_folding_energy_dataset$Organism)
-pd_HBs_bact_ecoli <- read_csv(file = "inputs/hbs_Escherichia_coli.csv")
-pd_HBs_bact_ecoli$Organism <- "Escherichia_coli"
-pd_HBs_bact_verru <- read_csv(file = "inputs/hbs_Methylacidiphilum_kamchatkense_Kam1.csv")
-pd_HBs_bact_verru$Organism <- "Methylacidiphilum_kamchatkense_Kam1"
-pd_HBs_arch_metha <- read_csv(file = "inputs/hbs_Methanosarcina_acetivorans_c2a.csv")
-pd_HBs_arch_metha$Organism <- "Methanosarcina_acetivorans_c2a.ASM734v1"
-pd_HBs_arch_halof <- read_csv(file = "inputs/hbs_Haloferax_volcanii.csv")
-pd_HBs_arch_halof$Organism <- "Haloferax_volcanii"
-pd_HBs_fung_sacch <- read_csv(file = "inputs/hbs_Saccharomyces_cerevisiae.csv")
-pd_HBs_fung_sacch$Organism <- "Saccharomyces_cerevisiae" 
-pd_HBs_fung_schiz <- read_csv(file = "inputs/hbs_Schizosaccharomyces_pombe.csv")
-pd_HBs_fung_schiz$Organism <- "Schizosaccharomyces_pombe"
-pd_HBs_fung_neuro <- read_csv(file = "inputs/hbs_Neurospora_crassa_73.csv")
-pd_HBs_fung_neuro$Organism <- "Neurospora_crassa_73"
-pd_HBs_fung_asper <- read_csv(file = "inputs/hbs_Aspergillus_nidulans.csv")
-pd_HBs_fung_asper$Organism <- "Aspergillus_nidulans"
+# simplify the name of ORFs in the FASTA file to match the operons tibble names
+names(ORFs_file) <- gsub(x = names(ORFs_file), pattern = "CDS:", replacement = "")
+# Fix names of ORFs in the FASTA file
+names(ORFs_file) <- gsub(x = names(ORFs_file), pattern = "\t", replacement = "")
 
-pd_HBs_dataset <- bind_rows(pd_HBs_bact_ecoli, pd_HBs_bact_verru, pd_HBs_arch_metha, pd_HBs_arch_halof, pd_HBs_fung_sacch, pd_HBs_fung_schiz, pd_HBs_fung_neuro, pd_HBs_fung_asper)
-pd_HBs_dataset$Element <- NULL
-pd_HBs_dataset$Metric <- "(E) H bonds"
+#----------------------------------------------------------------------#
+#----------------------------------------------------------------------#
+#--------------- looping over every detected operon -------------------#
+#----------------------------------------------------------------------#
+#----------------------------------------------------------------------#
+operons_HBs_tibble <- tibble()
+HBs_per_codon_tibble <- tibble()
+#OPERON = 623
+for (OPERON in unique(operons_tibble$Operon_ID) ) {
+  print(paste("Analizing operon: ", OPERON) )
   
-integrated_metrics_df <- bind_rows(pd_RSCU,
-                                   pd_W,
-                                   pd_folding_energy_dataset,
-                                   pd_tAI_dataset,
-                                   pd_HBs_dataset)
+  ORFs_in_each_operon <- operons_tibble %>% 
+    filter(Operon_ID == OPERON)
+  ORFs_in_each_operon <- ORFs_in_each_operon$IdGene
+  
+  # get only the nucleotide sequence out of the seqinR list object
+  subset_ORFs_in_each_operon <- subseq(x = ORFs_file[ORFs_in_each_operon])
+  HBs_per_codon_tibble <- bind_rows(HBs_per_codon_tibble,
+                                    as_tibble(
+                                      c(letterFrequency(subset_ORFs_in_each_operon, "A", as.prob=FALSE) * 2 +
+                                          letterFrequency(subset_ORFs_in_each_operon, "T", as.prob=FALSE) * 2 +
+                                          letterFrequency(subset_ORFs_in_each_operon, "G", as.prob=FALSE) * 3 +
+                                          letterFrequency(subset_ORFs_in_each_operon, "C", as.prob=FALSE) * 3) / (width(subset_ORFs_in_each_operon)/3)
+                                    ) %>% 
+                                      mutate(Organism = ORGANISM_NAME) %>% 
+                                      mutate(HBs_per_codon = value) %>% 
+                                      mutate(Operon_ID = paste0("Operon_", OPERON) ) %>% 
+                                      mutate(ORF_position_within_operon = 1:n() ) %>% # name each ORF within an operon with consequtive numbers 
+                                      select(Organism, Operon_ID, ORF_position_within_operon, HBs_per_codon)
+                                    )
+  
+  
+  # Subset now to the number of codons to analyze
+  subset_ORFs_in_each_operon <- subseq(x = ORFs_file[ORFs_in_each_operon], start = 1, width = NUMBER_OF_CODONS_TO_ANALYZE * 3)
+  
+  #----------------- PROCESS -----------------#
+  # Create a matrix in which we will count the occurence of nucleotides (and hence codons) and their HB cost
+  xx <- enframe(as.character(subset_ORFs_in_each_operon))$value
+  xx <- lapply(X=xx, FUN=seqinr::s2c)
+  xx <- data.frame(matrix(unlist(xx), nrow=length(xx), byrow=T),stringsAsFactors=FALSE)
+  
+  xx <- ifelse(
+    test = xx == "A", yes = 2,
+    no = ifelse(
+      test = xx == "G", yes = 3,
+      no = ifelse(
+        test = xx == "C", yes = 3,
+        no = ifelse(
+          test = xx == "T", yes = 2,
+          no = NA))))
+  
+  xx <- sapply(X = seq(from = 1, to = ncol(xx), by=3), FUN = function(x) {rowSums(xx[, x:(x+3-1)])} )
+  colnames(xx) <- paste0("Pos_", 1: (NUMBER_OF_CODONS_TO_ANALYZE) )
+  
+  xx <- as_tibble(xx)
+  
+  operons_HBs_tibble <- bind_rows(operons_HBs_tibble,
+                                  xx %>%
+                                    mutate(Organism = ORGANISM_NAME) %>% 
+                                    mutate(Operon_ID = paste0("Operon_", OPERON) ) %>% 
+                                    mutate(ORF_position_within_operon = 1:n() ) %>% # name each ORF within an operon with consequtive numbers 
+                                    select(Organism, Operon_ID, ORF_position_within_operon, Pos_1:paste0("Pos_", (NUMBER_OF_CODONS_TO_ANALYZE)) ) %>% 
+                                    pivot_longer(-c(Organism, Operon_ID, ORF_position_within_operon), names_to = "Position", values_to = "HBs") %>% 
+                                    mutate(Position2 = gsub(x = Position, pattern = "Pos_", replacement = "")) %>% 
+                                    mutate(Position2 = as.numeric(Position2)),
+                                  )
+}
 
-integrated_metrics_df <- integrated_metrics_df %>% 
-  mutate(sk = ifelse(test = Organism == "Escherichia_coli" | Organism == "Methylacidiphilum_kamchatkense_Kam1" | Organism == "Haloferax_volcanii" | Organism == "Methanosarcina_acetivorans_c2a.ASM734v1",
-                     yes = "Prok", no = "Euk"))
+dir.create(path = "outputs/")
+write_tsv(x = operons_HBs_tibble, path = paste0("outputs/", ORGANISM_NAME, "_operons_HBs_tibble.tsv") )
+write_tsv(x = HBs_per_codon_tibble, path = paste0("outputs/", ORGANISM_NAME, "_HBs_per_codon_tibble.tsv") )
 
-Fig_2A <- ggplot(data = integrated_metrics_df %>%
-         filter(Position > 1 & Position < 100), # 0 = no codon is excluded, 1 = only start codon is excluded,
-       mapping = aes(x = Position, colour=Organism)) +
-  #geom_vline(xintercept = 1, lty=2, colour="grey") +
-  #geom_hline(yintercept = 1, lty=2, colour="grey") +
-  geom_errorbar(mapping = aes(ymin=Lower, ymax=Upper), size=0.1) +
-  geom_point(mapping = aes(y=Mean), size=0.15) +
-  geom_line(mapping = aes(y=Mean), size=0.5) +
-  scale_color_brewer(palette="Dark2") +
-  #geom_smooth(aes(y=Mean))+
-  xlab(label = "Codon position (5'-end)") +
-  ylab(label = "Mean + 95% CI") +
-  facet_wrap(Metric~Organism, scales = "free_y", ncol = 8) +
-  #facet_wrap(Organism~Metric, scales = "free_y", ncol = 5) +
-  #facet_grid(Metric~Organism, scales = "free_y") +
+number_of_ORFs_per_ORF_group <- operons_HBs_tibble %>%
+  group_by(Position2, ORF_position_within_operon) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  select(ORF_position_within_operon, n) %>% 
+  unique() %>% 
+  mutate(Organism = ORGANISM_NAME) %>% 
+  mutate(ORF_position_within_operon_str = paste0("ORF_", ORF_position_within_operon))
+
+write_tsv(x = number_of_ORFs_per_ORF_group, path = paste0("outputs/", ORGANISM_NAME, "_number_of_ORFs_per_ORF_group.tsv") )
+
+
+#-----------------------------------------------------------------------#
+#-----------------------------------------------------------------------#
+#----------------------------- figures ---------------------------------#
+#-----------------------------------------------------------------------#
+#-----------------------------------------------------------------------#
+
+Fig_2A <- number_of_ORFs_per_ORF_group %>% 
+  ggplot(aes(x = ORF_position_within_operon, y = n)) +
+  geom_col(fill=c(rep("black", 3), rep("grey", 16))) +
+  geom_text(aes(label=n), size=1, nudge_y = 10) +
+  geom_hline(yintercept = max(number_of_ORFs_per_ORF_group$n)/3, lty=2) +
+  annotate(y = (max(number_of_ORFs_per_ORF_group$n)/3), x = 10, geom = "label", label=paste0(max(number_of_ORFs_per_ORF_group$n)," / 3"), size=1) +
+  scale_x_continuous("", labels = 1:19, breaks = 1:19) +
+  theme_new() +
+  NULL
+
+N_OF_ORFs = 6
+set.seed(15)
+my_comparisons <- list( c("ORF_1", "ORF_2"), c("ORF_1", "ORF_3"), c("ORF_2", "ORF_3") )
+Fig_2B <- bind_rows(
+  operons_HBs_tibble %>%
+    filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+    filter(Position2 %in% 1:20) %>% 
+    mutate(Codon_range = "Codon 1 to 20"),
+  operons_HBs_tibble %>%
+    filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+    filter(Position2 %in% 21:40) %>% 
+    mutate(Codon_range = "Codon 21 to 40"),
+  operons_HBs_tibble %>%
+    filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+    filter(Position2 %in% 41:60) %>% 
+    mutate(Codon_range = "Codon 41 to 60"),
+  operons_HBs_tibble %>%
+    filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+    filter(Position2 %in% 61:80) %>% 
+    mutate(Codon_range = "Codon 61 to 80"),
+  operons_HBs_tibble %>%
+    filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+    filter(Position2 %in% 81:100) %>% 
+    mutate(Codon_range = "Codon 81 to 100")
+) %>% 
+  mutate(ORF_position_within_operon_str = paste0("ORF_", ORF_position_within_operon)) %>%
+  filter(ORF_position_within_operon <= N_OF_ORFs) %>% 
+  ggplot(aes(x = ORF_position_within_operon_str, y = HBs)) +
+  stat_summary(fun.data = "mean_cl_boot", fun.args = list(conf.int = 0.95, B = 100, reps = FALSE), geom = "errorbar", width=0.1) + # ?mean_cl_boot
+  stat_summary(fun.y = "mean", geom="point", colour="black", size=2) +
+  stat_summary(aes(colour=ORF_position_within_operon_str), fun.y = "mean", geom="point", size=1) +
+  #stat_compare_means(label.y = c(7.64, 7.66, 7.64), comparisons = my_comparisons, method = "wilcox", label = "p.format", method.args = list(alternative = "less", paired = FALSE), size=2, tip.length = 0.001) + # Wilcoxon test: Compare two groups (non-parametric)
+  stat_compare_means(label.y = 7.62, ref.group = "ORF_1", method = "wilcox", label = "p.format", method.args = list(alternative = "greater", paired = FALSE), size=2) + # Wilcoxon test: Compare two groups (non-parametric)
+  stat_compare_means(label.y = 7.4, label.x = 2.0, method = "kruskal.test", colour="red", size=1.5) + # Kruskal-Wallis rank sum test: Compare multiple groups (non-parametric)
+  geom_text(data = number_of_ORFs_per_ORF_group  %>%
+              filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>%
+              filter(ORF_position_within_operon <= N_OF_ORFs),
+            aes(y = 7.38, label=paste0("n = ", n, " operons") ), nudge_x = 0, size=1.5) +
+  ylab(label = "Hydrogen bonds (mean ± 95% C.I.)") +
+  xlab(label = "ORF position within the operon") +
+  facet_wrap(~Codon_range, ncol=5) +
   theme_new() +
   theme(legend.position = "none") +
   NULL
 
-dir.create(path = "outputs", showWarnings = TRUE)
+set.seed(15)
+Fig_2C <- operons_HBs_tibble %>%
+  filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+  filter(Position2 %in% 1:100) %>% 
+  mutate(Codon_range = "Codon 1 to 100") %>% 
+  mutate(ORF_position_within_operon_str = paste0("ORF_", ORF_position_within_operon)) %>%
+  filter(ORF_position_within_operon <= N_OF_ORFs) %>% 
+  ggplot(aes(x = ORF_position_within_operon_str, y = HBs)) +
+  stat_summary(fun.data = "mean_cl_boot", fun.args = list(conf.int = 0.95, B = 100, reps = FALSE), geom = "errorbar", width=0.1) + # ?mean_cl_boot
+  stat_summary(fun.y = "mean", geom="point", colour="black", size=2) +
+  stat_summary(aes(colour=ORF_position_within_operon_str), fun.y = "mean", geom="point", size=1) +
+  #stat_compare_means(label.y = c(7.58, 7.60, 7.58), comparisons = my_comparisons, method = "wilcox", label = "p.format", method.args = list(alternative = "less", paired = FALSE), size=2, tip.length = 0.001) + # Wilcoxon test: Compare two groups (non-parametric)
+  stat_compare_means(label.y = 7.58, ref.group = "ORF_1", method = "wilcox", label = "p.format", method.args = list(alternative = "greater", paired = FALSE), size=2) + # Wilcoxon test: Compare two groups (non-parametric)
+  stat_compare_means(label.y = 7.52, label.x = 2.0, method = "kruskal.test", colour="red", size=1.5) + # Kruskal-Wallis rank sum test: Compare multiple groups (non-parametric)
+  geom_text(data = number_of_ORFs_per_ORF_group  %>%
+              filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>%
+              filter(ORF_position_within_operon <= N_OF_ORFs),
+            aes(y = 7.51, label=paste0("n = ", n, " operons") ), nudge_x = 0, size=1.5) +
+  ylab(label = "Hydrogen bonds (mean ± 95% C.I.)") +
+  xlab(label = "ORF position within the operon") +
+  facet_wrap(~Codon_range, ncol=4) +
+  theme_new() +
+  theme(legend.position = "none") +
+  NULL
 
-ggsave(plot = Fig_2A,
-       filename = "outputs/Fig_2A.pdf",
-       device = "pdf",
-       width = 180,
-       height = 90,
-       units = "mm",
-       useDingbats = FALSE)
-
-#-------------------------- Correlation analysis -------------------------#
-plot_corr_net_fun <- function(CURRENT_ORGANISM = 1) {
-  integrated_metrics_df %>% 
-    dplyr::filter(Organism == unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) %>% 
-    dplyr::filter(Position > 1 & Position < 100) %>% 
-    dplyr::select(-Lower, -Upper, -sk) %>% 
-    tidyr::pivot_wider(names_from = Metric, values_from = Mean) %>%
-    #group_by(Organism) %>%
-    dplyr::select(-Organism, -Position) %>% 
-    corrr::correlate(method = "spearman", use ="pairwise.complete.obs") %>% # spearman, kendall, pearson
-    corrr::network_plot(curved = TRUE, repel = TRUE, min_cor = 0) +
-    ggplot2::ggtitle(label = unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM])
-}
-
-Fig_2B <- plot_grid(plot_corr_net_fun(CURRENT_ORGANISM = 1),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 2),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 3),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 4),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 5),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 6),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 7),
-                    plot_corr_net_fun(CURRENT_ORGANISM = 8), nrow = 4, col = 2, labels = "B", label_size = 8)
-
-ggsave(plot = Fig_2B,
-       filename = "outputs/Fig_2B.pdf",
-       device = "pdf",
-       width = 300,
-       height = 400,
-       units = "mm",
-       useDingbats = FALSE)
-
-#-------------- Figure 2C1 --- Spearman's --------- focus on correlation between the ramp of Hbonds and other ramps
-plot_corr_barplot_fun <- function(CURRENT_ORGANISM = 1) {
-  integrated_metrics_df %>% 
-    dplyr::filter(Organism == unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) %>% 
-    dplyr::filter(Position > 1 & Position < 100) %>% 
-    dplyr::select(-Lower, -Upper, -sk) %>% 
-    tidyr::pivot_wider(names_from = Metric, values_from = Mean) %>%
-    #group_by(Organism) %>%
-    dplyr::select(-Organism, -Position) %>% 
-    corrr::correlate(method = "spearman", use ="pairwise.complete.obs") %>% # spearman, kendall, pearson
-    corrr::focus(`(E) H bonds`) %>% 
-    #dplyr::mutate(rowname = reorder(rowname, `(E) H bonds`)) %>%
-    ggplot(aes(x = rowname, y = `(E) H bonds`)) +
-    geom_hline(yintercept = 0, lty = 1, colour = "black") +
-    geom_col(aes(fill = `(E) H bonds` >= 0)) + 
-    ylim(c(-1,1))+
-    geom_text(aes(label = round(`(E) H bonds`, 2)), size=2) +
-    scale_fill_brewer(palette="Set1") +
-    xlab(label = "") +
-    coord_flip() +
-    ggtitle(label = unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) +
-    theme_bw() +
-    theme_new() +
-    theme(legend.position = "none")
-}
-
-Fig_2C_spearman <- plot_grid(plot_corr_barplot_fun(CURRENT_ORGANISM = 1),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 2),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 3),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 4),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 5),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 6),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 7),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 8),
-                    nrow = 2, ncol = 4)
-
-ggsave(plot = Fig_2C_spearman,
-       filename = "outputs/Fig_2C1.pdf",
-       device = "pdf",
-       width = 180,
-       height = 60,
-       units = "mm",
-       useDingbats = FALSE)
-
-#---- Get the adjusted P value from the multiple correlation analyses ----#
-unique(integrated_metrics_df$Organism)
-CURRENT_ORGANISM = 1 # Need to manually iterate over each organism number
-unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]
-integrated_metrics_df %>% 
-  dplyr::filter(Organism == unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) %>% 
-  dplyr::filter(Position > 1 & Position < 100) %>% 
-  dplyr::select(-Lower, -Upper, -sk) %>% 
-  tidyr::pivot_wider(names_from = Metric, values_from = Mean) %>%
-  #group_by(Organism) %>%
-  dplyr::select(-Organism, -Position) %>% 
-  as.matrix() %>%
-  #Hmisc::rcorr(type = "pearson") %>% 
-  RcmdrMisc::rcorr.adjust(type = "spearman") # spearman, pearson
-
-#-------------- Figure 2C2 - Pearson's --------- focus on correlation between the ramp of Hbonds and other ramps
-plot_corr_barplot_fun <- function(CURRENT_ORGANISM = 1) {
-  integrated_metrics_df %>% 
-    dplyr::filter(Organism == unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) %>% 
-    dplyr::filter(Position > 1 & Position < 100) %>% 
-    dplyr::select(-Lower, -Upper, -sk) %>% 
-    tidyr::pivot_wider(names_from = Metric, values_from = Mean) %>%
-    #group_by(Organism) %>%
-    dplyr::select(-Organism, -Position) %>% 
-    corrr::correlate(method = "pearson", use ="pairwise.complete.obs") %>% # spearman, kendall, pearson
-    corrr::focus(`(E) H bonds`) %>% 
-    #dplyr::mutate(rowname = reorder(rowname, `(E) H bonds`)) %>%
-    ggplot(aes(x = rowname, y = `(E) H bonds`)) +
-    geom_hline(yintercept = 0, lty = 1, colour = "black") +
-    geom_col(aes(fill = `(E) H bonds` >= 0)) + 
-    ylim(c(-1,1))+
-    geom_text(aes(label = round(`(E) H bonds`, 2)), size=2) +
-    scale_fill_brewer(palette="Set1") +
-    xlab(label = "") +
-    coord_flip() +
-    ggtitle(label = unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) +
-    theme_bw() +
-    theme_new() +
-    theme(legend.position = "none")
-}
-
-Fig_2C_pearson <- plot_grid(plot_corr_barplot_fun(CURRENT_ORGANISM = 1),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 2),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 3),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 4),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 5),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 6),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 7),
-                    plot_corr_barplot_fun(CURRENT_ORGANISM = 8),
-                    nrow = 2, ncol = 4)
-
-
-ggsave(plot = Fig_2C_pearson,
-       filename = "outputs/Fig_2C2.pdf",
-       device = "pdf",
-       width = 180,
-       height = 60,
-       units = "mm",
-       useDingbats = FALSE)
-
-#---- Get the adjusted P value from the multiple correlation analyses ----#
-unique(integrated_metrics_df$Organism)
-CURRENT_ORGANISM = 1
-unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]
-integrated_metrics_df %>% 
-  dplyr::filter(Organism == unique(integrated_metrics_df$Organism)[CURRENT_ORGANISM]) %>% 
-  dplyr::filter(Position > 1 & Position < 100) %>% 
-  dplyr::select(-Lower, -Upper) %>% 
-  tidyr::pivot_wider(names_from = Metric, values_from = Mean) %>%
-  #group_by(Organism) %>%
-  dplyr::select(-Organism, -Position) %>% 
-  as.matrix() %>%
-  #Hmisc::rcorr(type = "pearson") %>% 
-  RcmdrMisc::rcorr.adjust(type = "pearson") # spearman, pearson
-
-#------ GAM regression analysis ----#
-Fig_2D <- integrated_metrics_df %>%
-  filter(Position > 1 & Position < 100) %>% 
-  filter(Metric == "(B) P(mRNA folding)" | Metric == "(E) H bonds") %>% 
-  #mutate(Organism = paste0(sk, "_", Organism)) %>% 
-  pivot_wider(names_from = Metric, values_from = c(Mean, Lower, Upper)) %>% 
-  #ggplot(mapping = aes(x = `Mean_(E) H bonds`, y = `Mean_(B) P(mRNA folding)`, colour = Organism, shape = sk)) +
-  #ggplot(mapping = aes(x = `Mean_(E) H bonds`, y = `Mean_(B) P(mRNA folding)`, colour = sk)) +
-  ggplot(mapping = aes(x = `Mean_(E) H bonds`, y = `Mean_(B) P(mRNA folding)`, colour = Organism)) +
-  geom_point(size=0.15) +
-  geom_errorbar(mapping = aes(ymin  = `Lower_(B) P(mRNA folding)`,  ymax = `Upper_(B) P(mRNA folding)`), size=0.1) +
-  geom_errorbarh(mapping = aes(xmin = `Lower_(E) H bonds`,          xmax = `Upper_(E) H bonds`), size=0.1) +
-  geom_smooth(method = "gam") +
-  scale_color_brewer(palette="Dark2") +
-  facet_wrap(~Organism, nrow = 1, scales = "free") +
+#------------- Hydrogen bonds per codon --------------------#
+set.seed(15)
+Fig_2D <- HBs_per_codon_tibble %>%
+  filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+  filter(ORF_position_within_operon <= N_OF_ORFs) %>% 
+  mutate(ORF_position_within_operon_str = paste0("ORF_", ORF_position_within_operon)) %>% 
+  ggplot(aes(x = ORF_position_within_operon_str, y = HBs_per_codon)) +
+  stat_summary(fun.data = "mean_cl_boot", fun.args = list(conf.int = 0.95, B = 100, reps = FALSE), geom = "errorbar", width=0.1) + # ?mean_cl_boot
+  stat_summary(fun.y = "mean", geom="point", colour="black", size=2) +
+  stat_summary(aes(colour=ORF_position_within_operon_str), fun.y = "mean", geom="point", size=1) +
+  #stat_compare_means(label.y = c(7.595, 7.605, 7.595), comparisons = my_comparisons, method = "wilcox", label = "p.format", method.args = list(alternative = "less", paired = FALSE), size=2, tip.length = 0.001) + # Wilcoxon test: Compare two groups (non-parametric)
+  stat_compare_means(label.y = 7.595, ref.group = "ORF_1", method = "wilcox", label = "p.format", method.args = list(alternative = "greater", paired = FALSE), size=2) + # Wilcoxon test: Compare two groups (non-parametric)
+  stat_compare_means(label.y = 7.535, label.x = 2.0, method = "kruskal.test", colour="skyblue", size=1.5) + # Kruskal-Wallis rank sum test: Compare multiple groups (non-parametric)
+  geom_text(data = number_of_ORFs_per_ORF_group  %>%
+              filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 
+              filter(ORF_position_within_operon <= N_OF_ORFs),
+            aes(y = 7.525, label=paste0("n = ", n, " operons") ), nudge_x = 0, size=1.5) +
+  ylab(label = "Hydrogen bonds per codon (mean ± 95% C.I.)") +
+  xlab(label = "ORF position within the operon") +
+  ggtitle(label = "Entire ORF") +
   #facet_wrap(~Organism, scales = "free") +
-  theme_bw() +
   theme_new() +
   theme(legend.position = "none") +
   NULL
 
-ggsave(plot = Fig_2D,
-       filename = "outputs/Fig_2D.pdf",
+Fig_2A_grid <- plot_grid(NULL, Fig_2A, NULL, ncol = 3, labels = c("","A", ""), label_size = 8)
+Fig_2CD <- plot_grid(plotlist = list(NULL, Fig_2C, Fig_2D,  NULL), ncol = 4, rel_widths = c(0.1, 0.4, 0.4, 0.1), labels = c("", "C", "D", ""), label_size = 8)
+Fig_2 <- plot_grid(Fig_2A_grid, Fig_2B, Fig_2CD, nrow = 3, rel_heights = c(0.3, 0.3, 0.4), labels = c("", "B", ""), label_size = 8)
+
+ggsave(plot = Fig_2,
+       filename = "outputs/Fig_2.pdf",
        device = "pdf",
        width = 180,
-       height = 30,
+       height = 160,
        units = "mm",
        useDingbats = FALSE)
+
+
+
+
+
+
+
