@@ -286,7 +286,6 @@ random_percent_genes <- sample(x = expression_table$Gene,
 ORFeome <- readDNAStringSet(filepath = "inputs/Ecoli_ORFeome.fasta")
 names(ORFeome) <- gsub(x = gsub(x = names(ORFeome), pattern = ".*.\\[gene=", replacement = ""), pattern = "] .*", replacement = "")
 
-
 top_ORFs    <- ORFeome[names(ORFeome)%in%top_percent_genes]
 #writeXStringSet(x = top_ORFs, filepath = "outputs/TOP.fasta", format = "fasta")
 bot_ORFs <- ORFeome[names(ORFeome)%in%bot_percent_genes]
@@ -488,11 +487,11 @@ Fig_3A <- plot_grid(
 
 number_of_ORFs_per_cluster <- rbind(
   read_tsv(file = "outputs/number_of_ORFs_per_cluster_5_percent.tsv")  %>% mutate(Percent = "A_5%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_10_percent.tsv") %>% mutate(Percent = "B_10%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_15_percent.tsv") %>% mutate(Percent = "C_15%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_20_percent.tsv") %>% mutate(Percent = "D_20%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_25_percent.tsv") %>% mutate(Percent = "E_25%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_30_percent.tsv") %>% mutate(Percent = "F_30%")
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_10_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "B_10%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_15_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "C_15%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_20_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "D_20%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_25_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "E_25%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_30_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "F_30%")
 ) %>% pivot_longer(-Percent, names_to = "Cluster", values_to = "Number_of_ORFs")
 
 all_HBs_per_gene_expression <- rbind(
@@ -514,9 +513,9 @@ Fig_3B <- ggplot(data = all_HBs_per_gene_expression %>%
   #geom_vline(xintercept = c(1), lty=2, colour="black") +
   #geom_pointrange(mapping = aes(y=Mean, ymin=Lower, ymax=Upper), alpha=1/1) +
   #geom_line(aes(y=Mean), alpha=1/1) +
-  #geom_point(aes(y=Mean), alpha=1/3) +
+  geom_point(aes(y=Mean), alpha=1/3) +
   geom_smooth(aes(y=Mean), se = TRUE, size=0.5) +
-  #geom_text(data = number_of_ORFs_per_cluster %>% filter(Cluster != "B_Mid"), aes(label=Number_of_ORFs), x = 50, y = 7.4, size=3) +
+  geom_text(data = number_of_ORFs_per_cluster %>% filter(Cluster != "B_Mid"), aes(label=Number_of_ORFs), x = 50, y = 7.4, size=3) +
   xlab(label = "Codon position (5'-end)") +
   ylab(label = "HBs") +
   scale_color_brewer(palette = "Set1") +
