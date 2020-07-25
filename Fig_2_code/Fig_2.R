@@ -160,7 +160,8 @@ Fig_2A <- number_of_ORFs_per_ORF_group %>%
 
 N_OF_ORFs = 6
 set.seed(15)
-my_comparisons <- list( c("ORF_1", "ORF_2"), c("ORF_1", "ORF_3"), c("ORF_2", "ORF_3") )
+my_comparisons <- list(c("ORF_1", "ORF_2"), c("ORF_1", "ORF_3"), c("ORF_2", "ORF_3"))
+
 Fig_2B <- bind_rows(
   operons_HBs_tibble %>%
     filter(Organism == "Escherichia_coli_str_k_12_substr_mg1655") %>% 

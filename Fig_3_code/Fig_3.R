@@ -42,108 +42,124 @@ expression_table <- read_tsv(file = "inputs/GSE45443_Transcripts_Samples_7_to_22
   select(Gene, starts_with("Exp_")) %>% 
   filter(Gene != "-")
 
-PERCENT = 5
-#PERCENT = 10
-#PERCENT = 15
-#PERCENT = 20
-#PERCENT = 25
-#PERCENT = 30
+#----- Fisrt group of expression
+PERCENT_HIGH = 5
+PERCENT_BOT = 13
 
-PERCENT_BOT = PERCENT * 2
+#----- Second group of expression
+# PERCENT_HIGH = 10
+# PERCENT_BOT = 18
+
+#----- Third group of expression
+# PERCENT_HIGH = 15
+# PERCENT_BOT = 23
+
+#----- Fourth group of expression
+# PERCENT_HIGH = 20
+# PERCENT_BOT = 26
+
+#----- Fifth group of expression
+# PERCENT_HIGH = 25
+# PERCENT_BOT = 30
+
+#----- Sixth group of expression
+# PERCENT_HIGH = 30
+# PERCENT_BOT = 35
+
 
 top_percent_genes_Exp_1 <- expression_table %>% 
   arrange(desc(Exp_1)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_2 <- expression_table %>% 
   arrange(desc(Exp_2)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_3 <- expression_table %>% 
   arrange(desc(Exp_3)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_4 <- expression_table %>% 
   arrange(desc(Exp_4)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_5 <- expression_table %>% 
   arrange(desc(Exp_5)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_6 <- expression_table %>% 
   arrange(desc(Exp_6)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_7 <- expression_table %>% 
   arrange(desc(Exp_7)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_8 <- expression_table %>% 
   arrange(desc(Exp_8)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_9 <- expression_table %>% 
   arrange(desc(Exp_9)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_10 <- expression_table %>% 
   arrange(desc(Exp_10)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_11 <- expression_table %>% 
   arrange(desc(Exp_11)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_12 <- expression_table %>% 
   arrange(desc(Exp_12)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_13 <- expression_table %>% 
   arrange(desc(Exp_13)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_14 <- expression_table %>% 
   arrange(desc(Exp_14)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_15 <- expression_table %>% 
   arrange(desc(Exp_15)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
 top_percent_genes_Exp_16 <- expression_table %>% 
   arrange(desc(Exp_16)) %>% 
-  head(round(dim(expression_table)[1]*(PERCENT/100))) %>%
+  head(round(dim(expression_table)[1]*(PERCENT_HIGH/100))) %>%
   select(Gene) %>%
   as_vector()
 
@@ -294,11 +310,16 @@ random_ORFs <- ORFeome[names(ORFeome)%in%random_percent_genes]
 #writeXStringSet(x = bottom_ORFs, filepath = "outputs/RANDOM.fasta", format = "fasta")
 
 dir.create(path = "outputs")
-write_tsv(x = tibble(Percent = PERCENT,
-                     A_Bottom = length(bot_ORFs),
-                     C_Top = length(top_ORFs),
-                     D_Random = length(random_ORFs)),
-          path = paste0("outputs/number_of_ORFs_per_cluster_", PERCENT,"_percent.tsv"))
+
+number_of_ORFs_per_cluster <- tibble(Percent = PERCENT_HIGH,
+       A_Bottom = length(bot_ORFs),
+       C_Top = length(top_ORFs),
+       D_Random = length(random_ORFs))
+
+number_of_ORFs_per_cluster
+
+write_tsv(x = number_of_ORFs_per_cluster,
+          path = paste0("outputs/number_of_ORFs_per_cluster_", PERCENT_HIGH,"_percent.tsv"))
 
 NUMBER_OF_CODONS_TO_ANALYZE = 100
 
@@ -389,9 +410,8 @@ Elements_df_boot_random <- Hydrogen_bonds_matrix %>%
   ungroup() %>% 
   mutate(Cluster = "D_Random")
 
-
-Elements_df_boot <- bind_rows(Elements_df_boot_top, Elements_df_boot_mid, Elements_df_boot_bottom, Elements_df_boot_random)
-write_tsv(x = Elements_df_boot, path = paste0("outputs/HBs_per_expression_level_", PERCENT,"_percent.tsv"))
+Elements_df_boot <- bind_rows(Elements_df_boot_top, Elements_df_boot_bottom, Elements_df_boot_random)
+write_tsv(x = Elements_df_boot, path = paste0("outputs/HBs_per_expression_level_", PERCENT_HIGH,"_percent.tsv"))
 
 #------------------------------ FIGURES ------------------------------#
 expression_table <- read_tsv(file = "inputs/GSE45443_Transcripts_Samples_7_to_22.txt.gz") %>%
@@ -487,11 +507,11 @@ Fig_3A <- plot_grid(
 
 number_of_ORFs_per_cluster <- rbind(
   read_tsv(file = "outputs/number_of_ORFs_per_cluster_5_percent.tsv")  %>% mutate(Percent = "A_5%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_10_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "B_10%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_15_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "C_15%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_20_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "D_20%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_25_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "E_25%"),
-  read_tsv(file = "outputs/number_of_ORFs_per_cluster_30_percent.tsv") %>% select(!"B_Mid") %>% mutate(Percent = "F_30%")
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_10_percent.tsv") %>% mutate(Percent = "B_10%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_15_percent.tsv") %>% mutate(Percent = "C_15%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_20_percent.tsv") %>% mutate(Percent = "D_20%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_25_percent.tsv") %>% mutate(Percent = "E_25%"),
+  read_tsv(file = "outputs/number_of_ORFs_per_cluster_30_percent.tsv") %>% mutate(Percent = "F_30%")
 ) %>% pivot_longer(-Percent, names_to = "Cluster", values_to = "Number_of_ORFs")
 
 all_HBs_per_gene_expression <- rbind(
