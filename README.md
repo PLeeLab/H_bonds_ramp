@@ -19,7 +19,7 @@ https://msystems.asm.org/content/5/4/e00613-20
 
 ## Citation
 
-_Juan C. Villada, Maria F. Duran, Patrick K. H. Lee._ **2020**. Interplay between Position-Dependent Codon Usage Bias and Hydrogen Bonding at the 5ʹ End of ORFeomes. **_mSystems_**, 5(4)e00613-20. DOI:10.1128/mSystems.00613-20
+Villada JC, Duran MF, Lee PKH. **2020**. _Interplay between position-dependent codon usage bias and hydrogen bonding at the 5ʹ end of ORFeomes_. **mSystems** 5:e00613-20. https://doi.org/10.1128/mSystems.00613-20.
 
 ## Contact
 [Lee Research Group](http://www6.cityu.edu.hk/see/personal/Patrick_Lee/research.html)<br />
