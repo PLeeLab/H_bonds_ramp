@@ -18,7 +18,6 @@ https://msystems.asm.org/content/5/4/e00613-20
 8. [Figure 7CDEFGHI](Fig_7CDEFGHI_code/)
 
 ## Citation
-
 Villada JC, Duran MF, Lee PKH. **2020**. _Interplay between position-dependent codon usage bias and hydrogen bonding at the 5ʹ end of ORFeomes_. **mSystems** 5:e00613-20. https://doi.org/10.1128/mSystems.00613-20.
 
 ## Contact
